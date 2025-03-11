@@ -1,0 +1,95 @@
+@font-face {
+  font-family: 'Roboto';
+  src: url(/assets/Roboto-Italic-VariableFont_wdth\,wght.ttf);
+  font-weight: normal;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  padding: 20px;
+}
+
+.raid-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+h1 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 100px;
+}
+
+h2 {
+  text-align: left;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.btn-group {
+  margin: 15px 0;
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.note {
+  color: grey;
+  font-size: 14px;
+  text-align: left;
+  margin-top: 10px;
+}
+
+.raid-button, .disk-button {
+  margin: 5px 0;
+  padding: 12px 18px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  background-color: #d3d3d3;
+  color: white;
+}
+
+.raid-button:hover, .disk-button:hover {
+  background-color: #b0b0b0;
+}
+
+.raid-button.selected, .disk-button.selected {
+  background-color: #007bff;
+}
+
+.slider-container {
+  margin: 15px 0;
+  text-align: left;
+}
+
+.slider-container label {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+input[type="range"] {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.capacity-available {
+  color: #90EE90;
+  font-weight: bold;
+}
+
+.capacity-unavailable {
+  color: #006400;
+  font-weight: bold;
+}
