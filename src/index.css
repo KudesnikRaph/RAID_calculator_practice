@@ -84,12 +84,13 @@ input[type="range"] {
   margin-top: 5px;
 }
 
-.capacity-available {
-  color: #90EE90;
-  font-weight: bold;
+datalist {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.capacity-unavailable {
-  color: #006400;
-  font-weight: bold;
+option {
+  font-size: 12px;
+  color: gray;
 }
