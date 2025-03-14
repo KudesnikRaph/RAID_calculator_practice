@@ -1,14 +1,75 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../index.css";
+import noUiSlider from "nouislider";
+import "nouislider/dist/nouislider.css";
 
-const RaidCalculator = () => {
+const Raid = () => {
     const [capacity, setCapacity] = useState(2000);
     const [disks, setDisks] = useState(2);
     const [selectedRaid, setSelectedRaid] = useState('0');
     const [selectedDisk, setSelectedDisk] = useState('NL SAS / SATA 3.5"');
+    
+    const capacitySliderRef = useRef(null);
+    const disksSliderRef = useRef(null);
 
     const handleRaidClick = (raid) => setSelectedRaid(raid);
     const handleDiskClick = (type) => setSelectedDisk(type);
+
+    useEffect(() => {
+        const capacitySlider = capacitySliderRef.current;
+        const disksSlider = disksSliderRef.current;
+
+        if (capacitySlider) {
+            noUiSlider.create(capacitySlider, {
+                start: capacity,
+                connect: [true, false],
+                range: {
+                    min: 2000,
+                    max: 32000
+                },
+                step: 2000,
+                tooltips: false,
+                pips: {
+                    mode: 'range',
+                    density: 3
+                },
+            });
+
+            capacitySlider.noUiSlider.on("update", (values) => {
+                setCapacity(Number(values[0]));
+            });
+        }
+
+        if (disksSlider) {
+            noUiSlider.create(disksSlider, {
+                start: disks,
+                connect: [true, false],
+                range: {
+                    min: 2,
+                    max: 20
+                },
+                step: 2,
+                tooltips: false,
+                pips: {
+                    mode: 'range',
+                    density: 3
+                },
+            });
+
+            disksSlider.noUiSlider.on("update", (values) => {
+                setDisks(Number(values[0]));
+            });
+        }
+
+        return () => {
+            if (capacitySlider) {
+                capacitySlider.noUiSlider.destroy();
+            }
+            if (disksSlider) {
+                disksSlider.noUiSlider.destroy();
+            }
+        };
+    }, [capacity, disks]);
 
     return (
         <div className="raid-container">
@@ -37,67 +98,20 @@ const RaidCalculator = () => {
                 ))}
             </div>
             
-
             <div className="slider-container">
-                
-                <label>Объем памяти (TB): 
-                <input
-                    type="number"
-                    min="2000"
-                    max="20000"
-                    step="2000"
-                    value={capacity}
-                    onChange={(e) => setCapacity(Number(e.target.value))}
-                />
-                Gb
-                </label>
-                <input
-                    className="green-slider"
-                    type="range"
-                    min="2000" max="32000" step="2000"
-               
-                    onChange={(e) => setCapacity(Number(e.target.value))}
-                    list="capacity-ticks"
-                />
-                <datalist id="capacity-ticks">
-                    {Array.from({ length: (32000 - 2000) / 2000 + 1 }, (_, i) => (
-                        <option key={i} value={2000 + i * 2000}>{2000 + i * 2000}</option>
-                    ))}
-                </datalist>
+                <label className="lable">Объем памяти (TB): {capacity} Gb</label>
+                <div ref={capacitySliderRef} className="slider"></div>
                 <p className="note">1 терабайт (TB) = 1000 гигабайт (GB), 1 гигабайт (GB) = 1000 мегабайт</p>
             </div>
             
-
             <div className="slider-container">
-                <label>Количество дисков: 
-                <input
-                    type="number"
-                    min="2000"
-                    max="20000"
-                    step="2000"
-                    value={disks}
-                    onChange={(e) => setDisks(Number(e.target.value))}
-                />
-                Шт.
-                </label>
-                <input
-                    type="range"
-                    min="2"
-                    max="20"
-                    step="2"
-                    value={disks}
-                    onChange={(e) => setDisks(Number(e.target.value))}
-                    list="disk-ticks"
-                />
-                <datalist id="disk-ticks">
-                    {Array.from({ length: (20 - 2) / 2 + 1 }, (_, i) => (
-                        <option key={i} value={2 + i * 2}>{2 + i * 2}</option>
-                    ))}
-                </datalist>
+                <label className="lable">Количество дисков: {disks} Шт.</label>
+                <div ref={disksSliderRef} className="slider"></div>
+                
                 <p className="note">Для построения массива требуется не менее 2 дисков.</p>
             </div>
         </div>
     );
 };
 
-export default RaidCalculator;
+export default Raid;
