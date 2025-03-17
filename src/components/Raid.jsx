@@ -19,6 +19,13 @@ const Raid = ({ onCalculate }) => {
 
   const handleDiskClick = (type) => {
     setSelectedDisk(type);
+    if (type === "SATA 2.5\"") {
+      setCapacity(2400);
+    } else if (type === "SSD 2.5\"") {
+      setCapacity(60000);
+    } else {
+      setCapacity(2000);
+    }
     calculateRAID(selectedRaid, type, capacity, disks);
   };
 
@@ -95,14 +102,13 @@ const Raid = ({ onCalculate }) => {
         start: capacity,
         connect: [true, false],
         range: {
-          min: 2000,
-          max: 32000,
+          min: selectedDisk === "SATA 2.5\"" ? 600 : (selectedDisk === "SSD 2.5\"" ? 0 : 2000),
+          max: selectedDisk === "SATA 2.5\"" ? 2400 : (selectedDisk === "SSD 2.5\"" ? 60000 : 32000), 
         },
-        step: 2000,
-        tooltips: false,
+        step: selectedDisk === "SATA 2.5\"" ? 300 : 2000,
         pips: {
           mode: "range",
-          density: 3,
+          density: selectedDisk === "SATA 2.5\"" ? 4 : 3,
         },
       });
 
@@ -143,6 +149,19 @@ const Raid = ({ onCalculate }) => {
       }
     };
   }, [capacity, disks, selectedRaid, selectedDisk]);
+
+  useEffect(() => {
+    const capacitySlider = capacitySliderRef.current;
+    if (capacitySlider) {
+      capacitySlider.noUiSlider.updateOptions({
+        range: {
+          min: selectedDisk === "SATA 2.5\"" ? 900 : (selectedDisk === "SSD 2.5\"" ? 0 : 2000),
+          max: selectedDisk === "SATA 2.5\"" ? 2400 : (selectedDisk === "SSD 2.5\"" ? 60000 : 32000),
+        },
+        step: selectedDisk === "SATA 2.5\"" ? 300 : 2000,
+      });
+    }
+  }, [selectedDisk]);
 
   return (
     <div className="raid-container">
