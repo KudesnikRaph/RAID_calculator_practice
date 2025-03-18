@@ -104,3 +104,11 @@ input[type="range"] {
   text-align: left;
 }
 
+.capacity-input {
+  width: 100px;
+  margin-left: auto;
+}
+
+.disk-input {
+  width: 100px;
+}
