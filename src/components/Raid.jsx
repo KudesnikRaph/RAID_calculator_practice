@@ -4,31 +4,23 @@ import noUiSlider from "nouislider";
 import "nouislider/dist/nouislider.css";
 
 const Raid = ({ onCalculate }) => {
-  const [capacity, setCapacity] = useState(4000);
+  const [capacity, setCapacity] = useState(2000);
   const [disks, setDisks] = useState(2);
   const [selectedRaid, setSelectedRaid] = useState("0");
-  const [selectedDisk, setSelectedDisk] = useState('NL SAS / SATA 3.5"');
 
   const capacitySliderRef = useRef(null);
   const disksSliderRef = useRef(null);
 
   const handleRaidClick = (raid) => {
     setSelectedRaid(raid);
-    calculateRAID(raid, selectedDisk, capacity, disks);
-  };
-
-  const handleDiskClick = (type) => {
-    setSelectedDisk(type);
-    const newCapacity = type === "SATA 2.5\"" ? 2400 : (type === "SSD 2.5\"" ? 60000 : 2000);
-    setCapacity(newCapacity);
-    calculateRAID(selectedRaid, type, newCapacity, disks);
+    calculateRAID(raid, capacity, disks);
   };
 
   const handleDiskChange = (e) => {
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= 2 && value <= 20) {
       setDisks(value);
-      calculateRAID(selectedRaid, selectedDisk, capacity, value);
+      calculateRAID(selectedRaid, capacity, value);
     }
   };
 
@@ -36,11 +28,11 @@ const Raid = ({ onCalculate }) => {
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= 2000 && value <= 32000) {
       setCapacity(value);
-      calculateRAID(selectedRaid, selectedDisk, value, disks);
+      calculateRAID(selectedRaid, value, disks);
     }
   };
 
-  const calculateRAID = (raid, disk, capacity, disks) => {
+  const calculateRAID = (raid, capacity, disks) => {
     const raidInfo = {
       "0": { minDisks: 2, efficiency: 1.0 },
       "1": { minDisks: 2, efficiency: 0.5 },
@@ -69,8 +61,6 @@ const Raid = ({ onCalculate }) => {
         ? 2
         : raid === "10"
         ? Math.floor(disks / 2)
-        : raid === "50"
-        ? 2
         : 0;
 
     const availableCapacity = effectiveCapacity;
@@ -99,20 +89,20 @@ const Raid = ({ onCalculate }) => {
         start: capacity,
         connect: [true, false],
         range: {
-          min: selectedDisk === "SATA 2.5\"" ? 600 : (selectedDisk === "SSD 2.5\"" ? 0 : 2000),
-          max: selectedDisk === "SATA 2.5\"" ? 2400 : (selectedDisk === "SSD 2.5\"" ? 60000 : 32000),
+          min: 2000,
+          max: 32000,
         },
-        step: selectedDisk === "SATA 2.5\"" ? 300 : 2000,
+        step: 2000,
+        tooltips: false,
         pips: {
           mode: "range",
-          density: selectedDisk === "SATA 2.5\"" ? 4 : 3,
+          density: 3,
         },
       });
 
       capacitySlider.noUiSlider.on("update", (values) => {
-        const newValue = Number(values[0]);
-        setCapacity(newValue);
-        calculateRAID(selectedRaid, selectedDisk, newValue, disks);
+        setCapacity(Number(values[0]));
+        calculateRAID(selectedRaid, Number(values[0]), disks);
       });
     }
 
@@ -133,9 +123,8 @@ const Raid = ({ onCalculate }) => {
       });
 
       disksSlider.noUiSlider.on("update", (values) => {
-        const newValue = Number(values[0]);
-        setDisks(newValue);
-        calculateRAID(selectedRaid, selectedDisk, capacity, newValue);
+        setDisks(Number(values[0]));
+        calculateRAID(selectedRaid, capacity, Number(values[0]));
       });
     }
 
@@ -147,20 +136,7 @@ const Raid = ({ onCalculate }) => {
         disksSlider.noUiSlider.destroy();
       }
     };
-  }, [capacity, disks, selectedRaid, selectedDisk]);
-
-  useEffect(() => {
-    const capacitySlider = capacitySliderRef.current;
-    if (capacitySlider) {
-      capacitySlider.noUiSlider.updateOptions({
-        range: {
-          min: selectedDisk === "SATA 2.5\"" ? 600 : (selectedDisk === "SSD 2.5\"" ? 0 : 2000),
-          max: selectedDisk === "SATA 2.5\"" ? 2400 : (selectedDisk === "SSD 2.5\"" ? 60000 : 32000),
-        },
-        step: selectedDisk === "SATA 2.5\"" ? 300 : 2000,
-      });
-    }
-  }, [selectedDisk]);
+  }, [capacity, disks, selectedRaid]);
 
   return (
     <div className="raid-container">
@@ -177,21 +153,8 @@ const Raid = ({ onCalculate }) => {
         ))}
       </div>
 
-      <h2>Тип диска</h2>
-      <div className="btn-group">
-        {['NL SAS / SATA 3.5"', 'SATA 2.5"', 'SSD 2.5"'].map((type) => (
-          <button
-            key={type}
-            className={`disk-button ${selectedDisk === type ? "selected" : ""}`}
-            onClick={() => handleDiskClick(type)}
-          >
-            {type}
-          </button>
-        ))}
-      </div>
-
       <div className="slider-container">
-        <label className="label">Объем памяти (TB):</label>
+        <label className="label">Объем памяти (GB):</label>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <div ref={capacitySliderRef} className="slider" style={{ flex: 1, marginRight: '10px' }}></div>
           <input
@@ -202,9 +165,10 @@ const Raid = ({ onCalculate }) => {
             max="32000"
             step="2000"
             className="capacity-input"
+            style={{ width: '100px' }}
           />
         </div>
-        <p className="note">1 терабайт (TB) = 1000 гигабайт (GB), 1 гигабайт (GB) = 1000 мегабайт</p>
+        <p className="note">1 терабайт (TB) = 1000 гигабайт (GB)</p>
       </div>
 
       <div className="slider-container">
@@ -219,6 +183,7 @@ const Raid = ({ onCalculate }) => {
             max="20"
             step="2"
             className="disk-input"
+            style={{ width: '100px' }}
           />
         </div>
         <p className="note">Для построения массива требуется не менее 2 дисков.</p>
