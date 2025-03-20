@@ -15,8 +15,8 @@ const PieCharts = ({ data }) => {
   }
 
   const chartData = [
-    { name: "Доступный объем", value: parseInt(data.availableCapacity) },
-    { name: "Недоступный объем", value: parseInt(data.unavailableCapacity) },
+    { name: "Доступный объем", value: parseFloat(data.availableCapacity) },
+    { name: "Недоступный объем", value: parseFloat(data.unavailableCapacity) },
   ];
 
   return (

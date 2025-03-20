@@ -4,7 +4,7 @@ import noUiSlider from "nouislider";
 import "nouislider/dist/nouislider.css";
 
 const Raid = ({ onCalculate }) => {
-  const [capacity, setCapacity] = useState(2000);
+  const [capacity, setCapacity] = useState(72);
   const [disks, setDisks] = useState(2);
   const [selectedRaid, setSelectedRaid] = useState("0");
 
@@ -26,7 +26,7 @@ const Raid = ({ onCalculate }) => {
 
   const handleCapacityChange = (e) => {
     const value = parseInt(e.target.value, 10);
-    if (!isNaN(value) && value >= 2000 && value <= 32000) {
+    if (!isNaN(value) && value >= 72 && value <= 100000) {
       setCapacity(value);
       calculateRAID(selectedRaid, value, disks);
     }
@@ -48,7 +48,8 @@ const Raid = ({ onCalculate }) => {
 
     const totalPhysicalCapacity = capacity * disks;
     const effectiveCapacity =
-      totalPhysicalCapacity * (typeof raidInfo[raid].efficiency === "function"
+      totalPhysicalCapacity *
+      (typeof raidInfo[raid].efficiency === "function"
         ? raidInfo[raid].efficiency(disks)
         : raidInfo[raid].efficiency);
     const efficiency = (effectiveCapacity / totalPhysicalCapacity) * 100;
@@ -84,29 +85,47 @@ const Raid = ({ onCalculate }) => {
     const capacitySlider = capacitySliderRef.current;
     const disksSlider = disksSliderRef.current;
 
+    const allowedValues = [72, 100];
+    for (let val = 2000; val <= 100000; val += 2000) {
+      allowedValues.push(val);
+    }
+    const totalSteps = allowedValues.length - 1;
+    const rangeObject = {
+      min: allowedValues[0],
+      max: allowedValues[allowedValues.length - 1],
+    };
+    allowedValues.slice(1, -1).forEach((value, index) => {
+      const percentage = ((index + 1) / totalSteps) * 100;
+      rangeObject[`${percentage.toFixed(2)}%`] = value;
+    });
+
     if (capacitySlider) {
+      if (capacitySlider.noUiSlider) {
+        capacitySlider.noUiSlider.destroy();
+      }
       noUiSlider.create(capacitySlider, {
         start: capacity,
         connect: [true, false],
-        range: {
-          min: 2000,
-          max: 32000,
-        },
-        step: 2000,
+        snap: true,
+        range: rangeObject,
         tooltips: false,
         pips: {
-          mode: "range",
+          values: allowedValues,
           density: 3,
         },
       });
 
       capacitySlider.noUiSlider.on("update", (values) => {
-        setCapacity(Number(values[0]));
-        calculateRAID(selectedRaid, Number(values[0]), disks);
+        const newValue = Number(values[0]);
+        setCapacity(newValue);
+        calculateRAID(selectedRaid, newValue, disks);
       });
     }
 
     if (disksSlider) {
+      if (disksSlider.noUiSlider) {
+        disksSlider.noUiSlider.destroy();
+      }
       noUiSlider.create(disksSlider, {
         start: disks,
         connect: [true, false],
@@ -114,7 +133,7 @@ const Raid = ({ onCalculate }) => {
           min: 2,
           max: 20,
         },
-        step: 2,
+        step: 1,
         tooltips: false,
         pips: {
           mode: "range",
@@ -123,20 +142,21 @@ const Raid = ({ onCalculate }) => {
       });
 
       disksSlider.noUiSlider.on("update", (values) => {
-        setDisks(Number(values[0]));
-        calculateRAID(selectedRaid, capacity, Number(values[0]));
+        const newValue = Number(values[0]);
+        setDisks(newValue);
+        calculateRAID(selectedRaid, capacity, newValue);
       });
     }
 
     return () => {
-      if (capacitySlider) {
+      if (capacitySlider && capacitySlider.noUiSlider) {
         capacitySlider.noUiSlider.destroy();
       }
-      if (disksSlider) {
+      if (disksSlider && disksSlider.noUiSlider) {
         disksSlider.noUiSlider.destroy();
       }
     };
-  }, [capacity, disks, selectedRaid]);
+  }, [selectedRaid]);
 
   return (
     <div className="raid-container">
@@ -155,17 +175,21 @@ const Raid = ({ onCalculate }) => {
 
       <div className="slider-container">
         <label className="label">Объем памяти (GB):</label>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div ref={capacitySliderRef} className="slider" style={{ flex: 1, marginRight: '10px' }}></div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            ref={capacitySliderRef}
+            className="slider"
+            style={{ flex: 1, marginRight: "10px" }}
+          ></div>
           <input
             type="number"
             value={capacity}
             onChange={handleCapacityChange}
-            min="2000"
-            max="32000"
-            step="2000"
+            min="72"
+            max="100000"
+            step="100"
             className="capacity-input"
-            style={{ width: '100px' }}
+            style={{ width: "100px" }}
           />
         </div>
         <p className="note">1 терабайт (TB) = 1000 гигабайт (GB)</p>
@@ -173,17 +197,21 @@ const Raid = ({ onCalculate }) => {
 
       <div className="slider-container">
         <label className="label">Количество дисков:</label>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div ref={disksSliderRef} className="slider" style={{ flex: 1, marginRight: '10px' }}></div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <div
+            ref={disksSliderRef}
+            className="slider"
+            style={{ flex: 1, marginRight: "10px" }}
+          ></div>
           <input
             type="number"
             value={disks}
             onChange={handleDiskChange}
             min="2"
             max="20"
-            step="2"
+            step="1"
             className="disk-input"
-            style={{ width: '100px' }}
+            style={{ width: "100px" }}
           />
         </div>
         <p className="note">Для построения массива требуется не менее 2 дисков.</p>
