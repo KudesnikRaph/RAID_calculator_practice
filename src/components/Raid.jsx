@@ -110,7 +110,8 @@ const Raid = ({ onCalculate }) => {
         range: rangeObject,
         tooltips: false,
         pips: {
-          values: allowedValues,
+          mode: 'values',
+          values: [72, 100000],
           density: 3,
         },
       });
